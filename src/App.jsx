@@ -11,13 +11,30 @@ import {
   MagnifyingGlassIcon,
   PaintBrushIcon,
   SparklesIcon,
+  PlayIcon,
+  CheckIcon,
+  ClipboardDocumentListIcon,
+  RocketLaunchIcon,
+  CogIcon,
 } from "@heroicons/react/24/outline";
 
 const App = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [visibleSections, setVisibleSections] = useState(new Set());
+  const [typedText, setTypedText] = useState("");
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const heroRef = useRef(null);
+  const aboutRef = useRef(null);
+  const servicesRef = useRef(null);
+
+  const heroTexts = [
+    "Frontend Developer",
+    "Web Designer",
+    "React Specialist",
+    "UI/UX Enthusiast",
+  ];
 
   useEffect(() => {
     setIsLoaded(true);
@@ -28,13 +45,53 @@ const App = () => {
       setScrollY(window.scrollY);
     };
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const sections = document.querySelectorAll("section[id]");
+    sections.forEach((section) => observer.observe(section));
+
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("scroll", handleScroll);
+
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
     };
   }, []);
+
+  // Typing animation effect
+  useEffect(() => {
+    const currentText = heroTexts[currentTextIndex];
+
+    if (typedText.length < currentText.length) {
+      const timeout = setTimeout(() => {
+        setTypedText(currentText.slice(0, typedText.length + 1));
+      }, 100);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(
+        () => {
+          if (typedText.length === 0) {
+            setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
+          } else {
+            setTypedText(currentText.slice(0, typedText.length - 1));
+          }
+        },
+        typedText.length === currentText.length ? 2000 : 50
+      );
+      return () => clearTimeout(timeout);
+    }
+  }, [typedText, currentTextIndex, heroTexts]);
 
   const services = [
     {
@@ -42,75 +99,73 @@ const App = () => {
       title: "Tvorba moderních webů",
       description:
         "Kompletní vývoj webových stránek s moderními technologiemi jako React, Tailwind CSS a responsivním designem",
-      gradient: "from-blue-500 to-purple-600",
+      delay: "0ms",
     },
     {
       icon: <PaintBrushIcon className="w-8 h-8" />,
       title: "Redesign stávajících webů",
       description:
         "Modernizace zastaralých webových stránek s důrazem na uživatelský zážitek a současné trendy",
-      gradient: "from-purple-500 to-pink-600",
+      delay: "100ms",
     },
     {
       icon: <DevicePhoneMobileIcon className="w-8 h-8" />,
       title: "Responzivní design",
       description:
         "Weby optimalizované pro všechna zařízení - od mobilních telefonů po desktopy",
-      gradient: "from-pink-500 to-red-600",
+      delay: "200ms",
     },
     {
       icon: <MagnifyingGlassIcon className="w-8 h-8" />,
       title: "Základní SEO optimalizace",
       description:
         "Optimalizace pro vyhledávače s důrazem na rychlost načítání a správnou strukturu",
-      gradient: "from-green-500 to-teal-600",
+      delay: "300ms",
     },
     {
       icon: <CircleStackIcon className="w-8 h-8" />,
       title: "Integrace do WordPressu",
       description:
         "Převod statických designů do WordPress témat s uživatelsky přívětivým administrátorským rozhraním",
-      gradient: "from-teal-500 to-cyan-600",
+      delay: "400ms",
     },
     {
       icon: <GlobeAltIcon className="w-8 h-8" />,
       title: "Landing pages",
       description:
         "Efektivní prezentační stránky zaměřené na konverze a dosažení obchodních cílů",
-      gradient: "from-cyan-500 to-blue-600",
+      delay: "500ms",
     },
   ];
 
-  const portfolioItems = [
+  const processSteps = [
     {
-      title: "Café Moments",
+      icon: <ClipboardDocumentListIcon className="w-8 h-8" />,
+      title: "Analýza požadavků",
       description:
-        "Moderní web pro fiktivní kavárnu s online rezervačním systémem a galerií",
-      technologies: ["React", "Tailwind CSS", "Node.js"],
-      image:
-        "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&h=400&fit=crop",
-      link: "#",
-      color: "from-amber-400 to-orange-600",
+        "Detailní analýza vašich potřeb, cílové skupiny a obchodních cílů. Společně definujeme požadavky a očekávání.",
+      delay: "0ms",
     },
     {
-      title: "FitApp Landing",
+      icon: <PaintBrushIcon className="w-8 h-8" />,
+      title: "Design & Prototyping",
       description:
-        "Landing page pro mobilní fitness aplikaci s animacemi a call-to-action",
-      technologies: ["HTML", "CSS", "JavaScript"],
-      image:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
-      link: "#",
-      color: "from-green-400 to-emerald-600",
+        "Vytvoření wireframů a designu, který odpovídá vaší značce. Iterace až do dosažení perfektního výsledku.",
+      delay: "100ms",
     },
     {
-      title: "TechCorp Redesign",
+      icon: <CogIcon className="w-8 h-8" />,
+      title: "Vývoj & Testování",
       description:
-        "Redesign corporate webu s moderním designem a lepší uživatelskou navigací",
-      technologies: ["React", "TypeScript", "Styled Components"],
-      image:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-      link: "#",
-      color: "from-blue-400 to-indigo-600",
+        "Implementace designu pomocí moderních technologií. Důkladné testování na všech zařízeních a prohlížečích.",
+      delay: "200ms",
+    },
+    {
+      icon: <RocketLaunchIcon className="w-8 h-8" />,
+      title: "Spuštění & Podpora",
+      description:
+        "Nasazení na produkční server, SEO optimalizace a následná podpora. Váš web bude připraven k použití.",
+      delay: "300ms",
     },
   ];
 
@@ -141,7 +196,15 @@ const App = () => {
     },
   ];
 
-  // GitHub a LinkedIn ikony
+  const technologies = [
+    "React",
+    "Tailwind CSS",
+    "JavaScript",
+    "WordPress",
+    "HTML & CSS",
+    "Figma",
+  ];
+
   const GithubIcon = ({ className }) => (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -154,162 +217,256 @@ const App = () => {
     </svg>
   );
 
+  // Parallax animated background elements
+  const ParallaxBackground = () => (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {/* Geometric shapes with parallax */}
+      <div
+        className="absolute w-96 h-96 border border-blue-500/10 rounded-full"
+        style={{
+          top: "10%",
+          left: "5%",
+          transform: `translate(${scrollY * 0.1}px, ${scrollY * 0.05}px)`,
+        }}
+      />
+      <div
+        className="absolute w-64 h-64 border border-purple-500/10 rounded-full"
+        style={{
+          top: "60%",
+          right: "10%",
+          transform: `translate(${-scrollY * 0.15}px, ${scrollY * 0.08}px)`,
+        }}
+      />
+      <div
+        className="absolute w-32 h-32 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-xl rotate-45"
+        style={{
+          top: "30%",
+          right: "20%",
+          transform: `translate(${scrollY * 0.2}px, ${
+            -scrollY * 0.1
+          }px) rotate(${45 + scrollY * 0.1}deg)`,
+        }}
+      />
+      <div
+        className="absolute w-20 h-20 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-lg"
+        style={{
+          top: "80%",
+          left: "15%",
+          transform: `translate(${-scrollY * 0.12}px, ${scrollY * 0.06}px)`,
+        }}
+      />
+
+      {/* Floating particles */}
+      {[...Array(30)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute animate-float opacity-10"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${i * 0.3}s`,
+            animationDuration: `${4 + Math.random() * 6}s`,
+            transform: `translate(${
+              scrollY * (0.05 + Math.random() * 0.1)
+            }px, ${scrollY * (0.02 + Math.random() * 0.05)}px)`,
+          }}
+        >
+          <div
+            className={`w-1 h-1 bg-blue-400 rounded-full`}
+            style={{
+              filter: "blur(0.5px)",
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+
+  const InteractiveCursor = () => (
+    <div
+      className="fixed w-12 h-12 pointer-events-none z-50 transition-all duration-300 ease-out mix-blend-difference"
+      style={{
+        left: mousePosition.x - 24,
+        top: mousePosition.y - 24,
+        transform: `scale(${isLoaded ? 1 : 0})`,
+      }}
+    >
+      <div className="w-full h-full border border-white rounded-full opacity-50"></div>
+      <div className="absolute inset-4 bg-white rounded-full"></div>
+    </div>
+  );
+
   return (
     <div className="bg-black text-white font-light overflow-x-hidden">
-      {/* Enhanced cursor with glow effect */}
-      <div
-        className="fixed w-6 h-6 pointer-events-none z-50 transition-transform duration-150"
-        style={{
-          left: mousePosition.x - 12,
-          top: mousePosition.y - 12,
-          transform: `scale(${isLoaded ? 1 : 0})`,
-        }}
-      >
-        <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 rounded-full opacity-80 blur-sm"></div>
-        <div className="absolute inset-2 bg-white rounded-full mix-blend-difference"></div>
-      </div>
+      <ParallaxBackground />
+      <InteractiveCursor />
 
-      {/* Enhanced Navigation with glassmorphism */}
-      <nav className="fixed top-0 left-0 right-0 z-40 p-8">
-        <div className="backdrop-blur-lg bg-black/20 border border-white/10 rounded-2xl px-8 py-4">
+      {/* Enhanced Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-40 p-6">
+        <div
+          className={`backdrop-blur-xl bg-black/90 border border-gray-800 rounded-2xl px-8 py-4 transition-all duration-700 ${
+            scrollY > 50
+              ? "shadow-2xl border-gray-700 bg-black/95 backdrop-blur-2xl"
+              : ""
+          }`}
+        >
           <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold tracking-wider bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <div className="text-xl font-medium tracking-wide text-white relative">
               DAVID BŘEZINA
+              <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 animate-pulse"></div>
             </div>
-            <div className="hidden md:flex space-x-12 text-sm tracking-widest">
-              <a
-                href="#about"
-                className="hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:bg-clip-text transition-all duration-300"
-              >
-                O MNĚ
-              </a>
-              <a
-                href="#services"
-                className="hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:bg-clip-text transition-all duration-300"
-              >
-                SLUŽBY
-              </a>
-              <a
-                href="#portfolio"
-                className="hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:bg-clip-text transition-all duration-300"
-              >
-                PORTFOLIO
-              </a>
-              <a
-                href="#contact"
-                className="hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:bg-clip-text transition-all duration-300"
-              >
-                KONTAKT
-              </a>
+            <div className="hidden md:flex space-x-8 text-sm tracking-wide">
+              {["O MNĚ", "SLUŽBY", "PROCES", "KONTAKT"].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item
+                    .toLowerCase()
+                    .replace(" ", "")
+                    .replace("ě", "e")}`}
+                  className="relative text-gray-400 hover:text-white transition-all duration-300 group"
+                >
+                  {item}
+                  <div className="absolute -bottom-1 left-0 w-0 h-px bg-blue-500 group-hover:w-full transition-all duration-300"></div>
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Enhanced Hero Section with animated background */}
+      {/* Enhanced Hero Section */}
       <section
         ref={heroRef}
         className="min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-black to-gray-900"></div>
-
-        {/* Floating orbs */}
-        <div className="absolute inset-0 overflow-hidden">
+        {/* Dynamic animated background */}
+        <div className="absolute inset-0 bg-black">
           <div
-            className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
-            style={{
-              transform: `translate(${scrollY * 0.1}px, ${scrollY * 0.05}px)`,
-              left: "10%",
-              top: "20%",
-            }}
-          ></div>
-          <div
-            className="absolute w-80 h-80 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
-            style={{
-              transform: `translate(${-scrollY * 0.1}px, ${scrollY * 0.08}px)`,
-              right: "10%",
-              bottom: "20%",
-            }}
-          ></div>
-        </div>
-
-        {/* Enhanced grid with glow */}
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="w-full h-full"
+            className="absolute inset-0 opacity-[0.08]"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)
+                radial-gradient(circle at 20% 30%, rgba(59,130,246,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(147,51,234,0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(59,130,246,0.1) 0%, transparent 60%)
               `,
-              backgroundSize: "60px 60px",
+              animation: "gradient-shift 12s ease-in-out infinite",
+              transform: `translate(${scrollY * 0.1}px, ${scrollY * 0.05}px)`,
             }}
-          ></div>
+          />
         </div>
 
-        <div className="text-center z-10 max-w-6xl px-8">
-          <div
-            className={`transition-all duration-2000 ${
-              isLoaded
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-12"
-            }`}
-          >
-            <div className="mb-6">
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-white/10 rounded-full px-6 py-2 mb-8">
-                <SparklesIcon className="w-4 h-4 text-blue-400" />
-                <span className="text-sm tracking-wider text-blue-300">
-                  Frontend Developer & Web Designer
-                </span>
-              </div>
+        {/* Enhanced grid pattern with parallax */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(59,130,246,0.4) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(59,130,246,0.4) 1px, transparent 1px)
+            `,
+            backgroundSize: "80px 80px",
+            animation: "grid-pulse 6s ease-in-out infinite",
+            transform: `translate(${scrollY * 0.05}px, ${scrollY * 0.02}px)`,
+          }}
+        />
 
-              <h1 className="text-4xl md:text-6xl font-thin mb-4 tracking-wider">
-                <span className="bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  David Březina
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-400 font-light">
-                Tvořím moderní a rychlé weby, které zaujmou a fungují
-              </p>
+        <div className="flex items-center justify-center w-full max-w-7xl mx-auto px-8 z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center w-full">
+            {/* Enhanced Profile Photo - bez ikonek */}
+            <div
+              className={`flex justify-center lg:justify-end transition-all duration-1500 ${
+                isLoaded
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-8"
+              }`}
+            >
+              <div className="relative group">
+                {/* Animated rings */}
+                <div className="absolute inset-0 rounded-2xl">
+                  <div className="absolute inset-0 border border-blue-500/20 rounded-2xl animate-ping"></div>
+                  <div
+                    className="absolute inset-2 border border-blue-500/10 rounded-2xl animate-ping"
+                    style={{ animationDelay: "1s" }}
+                  ></div>
+                  <div
+                    className="absolute inset-4 border border-blue-500/5 rounded-2xl animate-ping"
+                    style={{ animationDelay: "2s" }}
+                  ></div>
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-2xl group-hover:blur-3xl transition-all duration-700 animate-pulse"></div>
+                <div className="relative">
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+                    alt="David Březina"
+                    className="w-80 h-80 object-cover rounded-2xl border border-gray-800 shadow-2xl group-hover:border-blue-500/50 transition-all duration-700 relative z-10"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl z-20"></div>
+                </div>
+              </div>
             </div>
 
-            <h2 className="text-5xl md:text-8xl font-thin mb-8 tracking-wider leading-tight">
-              <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Moderní weby
-              </span>
-              <br />
-              <span className="font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                které přinášejí zákazníky
-              </span>
-            </h2>
+            {/* Enhanced Text Content - bez frontend developer textu */}
+            <div
+              className={`text-center lg:text-left transition-all duration-1500 ${
+                isLoaded
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-8"
+              }`}
+            >
+              <div className="mb-6">
+                <h1
+                  className="text-5xl md:text-7xl font-light mb-6 tracking-tight"
+                  style={{ animationDelay: "500ms" }}
+                >
+                  <span className="text-white relative">
+                    David
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-transparent blur-lg opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+                  </span>
+                  <br />
+                  <span className="text-white relative">
+                    Březina
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-transparent blur-lg opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+                  </span>
+                </h1>
 
-            <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
-              <a
-                href="#contact"
-                className="group relative overflow-hidden flex items-center space-x-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+                <p
+                  className="text-xl md:text-2xl text-gray-400 font-light mb-12 leading-relaxed max-w-xl lg:max-w-none"
+                  style={{ animationDelay: "700ms" }}
+                >
+                  Tvořím moderní digitální zážitky, které kombinují krásný
+                  design s perfektní funkcionalitou a přinášejí vašemu podnikání
+                  <span className="text-blue-400 font-medium"> výsledky</span>.
+                </p>
+              </div>
+
+              <div
+                className="flex flex-col sm:flex-row justify-center lg:justify-start items-center space-y-4 sm:space-y-0 sm:space-x-6"
+                style={{ animationDelay: "900ms" }}
               >
-                <span className="font-medium relative z-10">
-                  KONTAKTUJTE MĚ
-                </span>
-                <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </a>
-              <a
-                href="#services"
-                className="group relative border border-white/30 backdrop-blur-sm px-8 py-4 rounded-lg hover:bg-white/10 hover:border-white transition-all duration-300"
-              >
-                <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent group-hover:from-blue-400 group-hover:to-purple-500">
-                  PROHLÉDNOUT SLUŽBY
-                </span>
-              </a>
+                <a
+                  href="#kontakt"
+                  className="group relative flex items-center space-x-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 font-medium overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  <span className="relative z-10">ZAČNĚME SPOLUPRÁCI</span>
+                  <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
+                </a>
+
+                <a
+                  href="#sluzby"
+                  className="group relative border border-gray-700 text-gray-300 hover:text-white hover:border-blue-500/50 px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 font-medium overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10">PROZKOUMAT SLUŽBY</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center space-y-2">
-          <div className="w-px h-16 bg-gradient-to-b from-transparent via-blue-400 to-purple-500"></div>
-          <span className="text-xs tracking-widest rotate-90 origin-center text-blue-300">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center space-y-4 animate-bounce">
+          <div className="w-px h-12 bg-gradient-to-b from-blue-500 to-transparent"></div>
+          <span className="text-xs tracking-widest rotate-90 origin-center text-gray-500">
             SCROLL
           </span>
         </div>
@@ -317,103 +474,74 @@ const App = () => {
 
       {/* Enhanced About Section */}
       <section
-        id="about"
-        className="py-32 px-8 bg-gradient-to-b from-gray-950 to-black relative"
+        id="omne"
+        ref={aboutRef}
+        className="py-24 px-8 bg-gray-900/20 relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"></div>
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
+
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid md:grid-cols-2 gap-20 items-start">
-            <div>
-              <h2 className="text-5xl md:text-7xl font-thin mb-8">
-                <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+          <div className="grid lg:grid-cols-2 gap-20 items-start">
+            <div
+              className={`transition-all duration-1000 ${
+                visibleSections.has("omne")
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-8"
+              }`}
+            >
+              <div className="sticky top-32">
+                <h2 className="text-4xl md:text-5xl font-light mb-8 text-white leading-tight">
                   O MNĚ
-                </span>
-              </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mb-12"></div>
-              <div className="space-y-8 text-lg text-gray-300 leading-relaxed">
-                <p className="relative">
-                  <span className="absolute -left-4 top-0 text-blue-400 text-2xl">
-                    "
-                  </span>
-                  Jsem David Březina, frontend developer a web designer s vášní
-                  pro vytváření moderních digitálních zážitků. Specializuji se
-                  na tvorbu responzivních webových stránek, které nejen skvěle
-                  vypadají, ale také perfektně fungují.
-                </p>
-                <p>
-                  Moje práce kombinuje estetiku s funkcionalitou. Věřím, že
-                  dobrý web by měl být rychlý, přístupný a intuitivní pro
-                  uživatele. Každý projekt beru jako příležitost vytvořit něco
-                  unikátního a efektivního.
-                </p>
-                <p>
-                  Baví mě sledovat nejnovější trendy ve webovém designu a
-                  implementovat je do praktických řešení, která pomáhají firmám
-                  růst a dosahovat svých cílů online.
-                </p>
+                </h2>
+                <div className="w-16 h-px bg-gradient-to-r from-blue-500 to-transparent mb-10"></div>
+
+                <div className="space-y-6 text-lg text-gray-300 leading-relaxed">
+                  <p>
+                    Jsem David Březina, frontend developer a web designer s
+                    vášní pro vytváření moderních digitálních zážitků.
+                    Specializuji se na tvorbu responzivních webových stránek,
+                    které nejen skvěle vypadají, ale také perfektně fungují.
+                  </p>
+                  <p>
+                    Moje práce kombinuje estetiku s funkcionalitou. Věřím, že
+                    dobrý web by měl být rychlý, přístupný a intuitivní pro
+                    uživatele. Každý projekt beru jako příležitost vytvořit něco
+                    unikátního a efektivního.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-12">
-              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <h3 className="text-2xl font-light mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+            <div
+              className={`space-y-8 transition-all duration-1000 delay-300 ${
+                visibleSections.has("omne")
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-8"
+              }`}
+            >
+              {/* Simplified Technologies Section */}
+              <div className="bg-gray-900/30 border border-gray-800 rounded-2xl p-8 hover:border-gray-700 transition-all duration-500 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+
+                <h3 className="text-xl font-medium mb-6 text-white flex items-center relative z-10">
+                  <div className="w-8 h-8 bg-gray-800 rounded-lg mr-3 flex items-center justify-center">
+                    <CodeBracketIcon className="w-4 h-4 text-blue-400" />
+                  </div>
                   TECHNOLOGIE
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    "React",
-                    "Tailwind CSS",
-                    "JavaScript",
-                    "WordPress",
-                    "HTML & CSS",
-                    "Figma",
-                  ].map((tech, index) => (
+
+                <div className="grid grid-cols-2 gap-3 relative z-10">
+                  {technologies.map((tech, index) => (
                     <div
                       key={index}
-                      className="flex items-center space-x-3 group"
+                      className="flex items-center space-x-3 bg-gray-800/50 rounded-lg px-4 py-3 hover:bg-gray-800/70 transition-all duration-300 group"
                     >
-                      <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full group-hover:scale-150 transition-transform"></div>
-                      <span className="text-gray-300 group-hover:text-white transition-colors">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full group-hover:bg-blue-300 transition-colors duration-300"></div>
+                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors duration-300">
                         {tech}
                       </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <h3 className="text-2xl font-light mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                  CERTIFIKACE
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    {
-                      title: "Frontend Development",
-                      org: "freeCodeCamp",
-                      year: "2024",
-                    },
-                    {
-                      title: "React Developer",
-                      org: "Meta Professional Certificate",
-                      year: "2024",
-                    },
-                    {
-                      title: "UX/UI Design",
-                      org: "Google UX Design Certificate",
-                      year: "2023",
-                    },
-                  ].map((cert, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-start p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/5 hover:border-white/20 transition-all duration-300"
-                    >
-                      <div>
-                        <div className="font-medium text-white">
-                          {cert.title}
-                        </div>
-                        <div className="text-gray-400 text-sm">{cert.org}</div>
-                      </div>
-                      <div className="text-blue-400 font-mono">{cert.year}</div>
                     </div>
                   ))}
                 </div>
@@ -424,19 +552,20 @@ const App = () => {
       </section>
 
       {/* Enhanced Services Section */}
-      <section id="services" className="py-32 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black to-gray-950"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="mb-20 text-center">
-            <h2 className="text-5xl md:text-7xl font-thin mb-8">
-              <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                CO NABÍZÍM
-              </span>
+      <section
+        id="sluzby"
+        ref={servicesRef}
+        className="py-24 px-8 relative overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
+              SLUŽBY
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mx-auto mb-8"></div>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Kompletní služby pro váš online úspěch. Od návrhu až po
-              implementaci a optimalizaci.
+            <div className="w-16 h-px bg-gradient-to-r from-blue-500 to-transparent mx-auto"></div>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
+              Každý projekt je pro mě jedinečný. Nabízím komplexní služby od
+              návrhu po implementaci, vždy s důrazem na kvalitu a detaily.
             </p>
           </div>
 
@@ -444,94 +573,98 @@ const App = () => {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:border-white/30 transition-all duration-500 hover:transform hover:scale-105"
+                className={`group bg-gray-900/30 border border-gray-800 rounded-2xl p-8 hover:border-blue-500/50 hover:bg-gray-900/50 transition-all duration-500 transform hover:scale-105 relative overflow-hidden ${
+                  visibleSections.has("sluzby")
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+                style={{
+                  animationDelay: service.delay,
+                  transitionDelay: service.delay,
+                }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                <div
-                  className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${service.gradient} mb-6 group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <div className="text-white">{service.icon}</div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 bg-gray-800 rounded-xl mb-6 flex items-center justify-center text-blue-400 group-hover:bg-blue-500/10 group-hover:text-blue-300 transition-all duration-500">
+                    {service.icon}
+                  </div>
+
+                  <h3 className="text-xl font-medium mb-4 text-white group-hover:text-blue-300 transition-colors duration-300">
+                    {service.title}
+                  </h3>
+
+                  <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
+                    {service.description}
+                  </p>
                 </div>
-
-                <h3 className="text-xl font-medium mb-4 group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                  {service.title}
-                </h3>
-                <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
-                  {service.description}
-                </p>
-
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Enhanced Portfolio Section */}
+      {/* New Process Section */}
       <section
-        id="portfolio"
-        className="py-32 px-8 bg-gradient-to-b from-gray-950 to-black relative"
+        id="proces"
+        className="py-24 px-8 bg-gray-900/20 relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="mb-20 text-center">
-            <h2 className="text-5xl md:text-7xl font-thin mb-8">
-              <span className="bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-                UKÁZKY PRÁCE
-              </span>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
+              PROCES PRÁCE
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-purple-400 to-blue-500 rounded-full mx-auto mb-8"></div>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Výběr projektů, které demonstrují moje schopnosti a přístup k
-              webovému designu a vývoji.
+            <div className="w-16 h-px bg-gradient-to-r from-blue-500 to-transparent mx-auto"></div>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed mt-6">
+              Transparentní a strukturovaný přístup k vývoju vašeho webového
+              projektu od prvotního návrhu až po finální spuštění.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {portfolioItems.map((item, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {processSteps.map((step, index) => (
               <div
                 key={index}
-                className="group bg-gradient-to-br from-gray-900/80 to-gray-800/40 backdrop-blur-sm border border-white/10 hover:border-white/30 transition-all duration-500 overflow-hidden rounded-2xl hover:transform hover:scale-105"
+                className={`group relative transition-all duration-1000 ${
+                  visibleSections.has("proces") || visibleSections.has("sluzby")
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+                style={{
+                  animationDelay: step.delay,
+                  transitionDelay: step.delay,
+                }}
               >
-                <div className="aspect-video bg-gray-800 overflow-hidden relative">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
-                  ></div>
+                {/* Step number */}
+                <div className="absolute -top-4 -left-4 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium z-10">
+                  {index + 1}
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-medium mb-3 group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-400 mb-4 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
-                    {item.description}
-                  </p>
+                <div className="bg-gray-900/30 border border-gray-800 rounded-2xl p-8 hover:border-blue-500/50 hover:bg-gray-900/50 transition-all duration-500 relative overflow-hidden h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {item.technologies.map((tech, techIndex) => (
-                      <span
-                        key={techIndex}
-                        className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-white/10 text-gray-300 text-sm rounded-full hover:border-white/30 transition-all duration-300"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 bg-gray-800 rounded-xl mb-6 flex items-center justify-center text-blue-400 group-hover:bg-blue-500/10 group-hover:text-blue-300 transition-all duration-500">
+                      {step.icon}
+                    </div>
+
+                    <h3 className="text-xl font-medium mb-4 text-white group-hover:text-blue-300 transition-colors duration-300">
+                      {step.title}
+                    </h3>
+
+                    <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
+                      {step.description}
+                    </p>
                   </div>
-
-                  <a
-                    href={item.link}
-                    className="inline-flex items-center space-x-2 text-white hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:bg-clip-text hover:text-transparent transition-all duration-300 group-hover:translate-x-1"
-                  >
-                    <span>Zobrazit projekt</span>
-                    <ArrowTopRightOnSquareIcon className="w-4 h-4" />
-                  </a>
                 </div>
+
+                {/* Connection line */}
+                {index < processSteps.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-px bg-gradient-to-r from-blue-500/50 to-transparent transform -translate-y-1/2 z-0"></div>
+                )}
               </div>
             ))}
           </div>
@@ -539,59 +672,52 @@ const App = () => {
       </section>
 
       {/* Enhanced Testimonials Section */}
-      <section className="py-32 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black to-gray-950"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="mb-20 text-center">
-            <h2 className="text-5xl md:text-7xl font-thin mb-8">
-              <span className="bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
-                REFERENCE
-              </span>
+      <section className="py-24 px-8 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
+              CO ŘÍKAJÍ KLIENTI
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-8"></div>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Co říkají klienti o mé práci a spolupráci.
-            </p>
+            <div className="w-16 h-px bg-gradient-to-r from-blue-500 to-transparent mx-auto"></div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="group bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:border-white/30 transition-all duration-500 hover:transform hover:scale-105"
+                className="bg-gray-900/30 border border-gray-800 rounded-2xl p-8 hover:border-blue-500/50 hover:bg-gray-900/50 transition-all duration-500 relative overflow-hidden group"
               >
-                <div className="flex items-center mb-6">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-transparent group-hover:border-blue-400 transition-all duration-300"
-                  />
-                  <div>
-                    <div className="font-medium text-white group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-gray-400 text-sm">
-                      {testimonial.company}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                <div className="relative z-10">
+                  <div className="flex items-center mb-6">
+                    <img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full mr-4 border border-gray-700"
+                    />
+                    <div>
+                      <div className="font-medium text-white">
+                        {testimonial.name}
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        {testimonial.company}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className="w-5 h-5 text-yellow-400 group-hover:text-yellow-300 transition-colors duration-300"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
+                  <div className="flex mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <div key={i} className="w-4 h-4 text-yellow-400 mr-1">
+                        ⭐
+                      </div>
+                    ))}
+                  </div>
 
-                <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
-                  "{testimonial.text}"
-                </p>
+                  <p className="text-gray-300 leading-relaxed italic">
+                    "{testimonial.text}"
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -600,171 +726,144 @@ const App = () => {
 
       {/* Enhanced Contact Section */}
       <section
-        id="contact"
-        className="py-32 px-8 bg-gradient-to-b from-gray-950 via-black to-gray-900 relative"
+        id="kontakt"
+        className="py-24 px-8 bg-gray-900/20 relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-7xl font-thin mb-8">
-              <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                POJĎME SPOLUPRACOVAT
-              </span>
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mx-auto mb-8"></div>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Máte projekt na mysli? Napište mi a promluvme si o tom, jak můžu
-              pomoci vašemu podnikání růst online.
-            </p>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
+
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
+            ZAČNĚME NĚCO VYTVÁŘET
+          </h2>
+          <div className="w-16 h-px bg-gradient-to-r from-blue-500 to-transparent mx-auto mb-8"></div>
+
+          <p className="text-xl text-gray-400 mb-12 leading-relaxed max-w-2xl mx-auto">
+            Máte nápad na projekt? Rád si s vámi promluvím o tom, jak můžeme
+            společně vytvořit něco výjimečného.
+          </p>
+
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-12">
+            <a
+              href="mailto:david@example.com"
+              className="group flex items-center space-x-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 font-medium"
+            >
+              <EnvelopeIcon className="w-5 h-5" />
+              <span>NAPIŠTE MI</span>
+            </a>
+
+            <a
+              href="tel:+420123456789"
+              className="group border border-gray-700 text-gray-300 hover:text-white hover:border-blue-500/50 px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 font-medium flex items-center space-x-3"
+            >
+              <span>+420 123 456 789</span>
+            </a>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-20">
-            <div className="space-y-8">
-              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <h3 className="text-2xl font-light mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                  KONTAKTNÍ ÚDAJE
-                </h3>
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 group">
-                    <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-                      <EnvelopeIcon className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-sm">Email</div>
-                      <div className="text-white group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                        david.web@email.cz
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 group">
-                    <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg">
-                      <DevicePhoneMobileIcon className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-sm">Telefon</div>
-                      <div className="text-white group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                        +420 123 456 789
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 group">
-                    <div className="p-3 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg">
-                      <GlobeAltIcon className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-sm">Lokalita</div>
-                      <div className="text-white group-hover:bg-gradient-to-r group-hover:from-green-400 group-hover:to-teal-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                        Praha, Česká republika
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <h3 className="text-2xl font-light mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                  SOCIÁLNÍ SÍTĚ
-                </h3>
-                <div className="flex space-x-4">
-                  <a
-                    href="#"
-                    className="group p-4 bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg hover:from-blue-500 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
-                  >
-                    <GithubIcon className="w-6 h-6 text-gray-300 group-hover:text-white" />
-                  </a>
-                  <a
-                    href="#"
-                    className="group p-4 bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg hover:from-blue-500 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
-                  >
-                    <LinkedinIcon className="w-6 h-6 text-gray-300 group-hover:text-white" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-              <h3 className="text-2xl font-light mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                NAPIŠTE MI
-              </h3>
-              <div className="space-y-6">
-                <div>
-                  <div className="block text-gray-300 mb-2">Jméno</div>
-                  <div className="w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300">
-                    Kontaktní formulář je k dispozici po kliknutí na email výše
-                  </div>
-                </div>
-                <div>
-                  <div className="block text-gray-300 mb-2">Email</div>
-                  <div className="w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-lg text-white">
-                    david.web@email.cz
-                  </div>
-                </div>
-                <div>
-                  <div className="block text-gray-300 mb-2">
-                    Preferovaný způsob kontaktu
-                  </div>
-                  <div className="w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-lg text-white">
-                    Email nebo telefon pro rychlou odpověď
-                  </div>
-                </div>
-                <div className="group relative w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 overflow-hidden cursor-pointer">
-                  <span className="font-medium relative z-10">
-                    NAPSAT EMAIL
-                  </span>
-                  <PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-              </div>
-            </div>
+          <div className="flex justify-center space-x-6">
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-500/20 transition-all duration-300"
+            >
+              <GithubIcon className="w-5 h-5" />
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-500/20 transition-all duration-300"
+            >
+              <LinkedinIcon className="w-5 h-5" />
+            </a>
           </div>
         </div>
       </section>
 
       {/* Enhanced Footer */}
-      <footer className="py-16 px-8 border-t border-white/10 bg-gradient-to-b from-gray-900 to-black">
+      <footer className="border-t border-gray-800 py-12 px-8 bg-black/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="text-3xl font-bold tracking-wider mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              DAVID BŘEZINA
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="text-center md:text-left mb-4 md:mb-0">
+              <div className="text-xl font-medium text-white mb-2">
+                DAVID BŘEZINA
+              </div>
+              <p className="text-gray-400 text-sm">
+                Frontend Developer & Web Designer
+              </p>
             </div>
-            <p className="text-gray-400 mb-8">
-              Frontend Developer & Web Designer
-            </p>
-            <div className="flex justify-center space-x-8 mb-8">
-              <a
-                href="#about"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                O mně
-              </a>
-              <a
-                href="#services"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Služby
-              </a>
-              <a
-                href="#portfolio"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Portfolio
-              </a>
-              <a
-                href="#contact"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Kontakt
-              </a>
+
+            <div className="text-center md:text-right">
+              <p className="text-gray-400 text-sm">
+                © 2025 David Březina. Všechna práva vyhrazena.
+              </p>
             </div>
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8"></div>
-            <p className="text-gray-500 text-sm">
-              © 2024 David Březina. Všechna práva vyhrazena.
-            </p>
           </div>
         </div>
       </footer>
+
+      {/* Enhanced CSS Animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(180deg);
+          }
+        }
+
+        @keyframes gradient-shift {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -30px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+
+        @keyframes grid-pulse {
+          0%,
+          100% {
+            opacity: 0.03;
+          }
+          50% {
+            opacity: 0.06;
+          }
+        }
+
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: #3b82f6;
+          border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: #2563eb;
+        }
+      `}</style>
     </div>
   );
 };
